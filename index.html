@@ -21,12 +21,12 @@
 
 		<div id="list" ng-controller="compare" ng-app="compare">
 			<ul id="lists">
-				<li ng-repeat="list in lists">
+				<li ng-repeat=" list in lists | orderBy:'name' ">
 					<button class="view-btn btn" title="View Mapped Items" ng-click="view_self(list)">&bullet;</button>
 					<button ng-click="add(list)" class="add-btn btn" ng-show="map_obj" title="Add place to my list">&plus;</button>
 					<h4>{{list.name}}</h4>
 					<ul>
-						<li ng-repeat="item in list.list">
+						<li ng-repeat=" item in list.list | orderBy:'name' ">
 							<button ng-click="rem(list, item)" class="rem-btn btn" title="Remove place from my list">&times;</button>
 							<small>{{item.name}}</small>
 						</li>
