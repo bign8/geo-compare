@@ -28,13 +28,13 @@
 					<ul>
 						<li ng-repeat=" item in list.list | orderBy:'name' ">
 							<button ng-click="rem(list, item)" class="rem-btn btn" title="Remove place from my list">&times;</button>
-							<small>{{item.name}}</small>
+							<small title="{{item.name}}">{{item.name}}</small>
 						</li>
 					</ul>
 				</li>
 				<li>
 					<button class="view-btn btn" title="View Mapped Items" ng-click="view()">&bullet;</button>
-					<h4>Both</h4>
+					<h4 style="margin-bottom:0">Both</h4>
 				</li>
 			</ul>
 		</div>
