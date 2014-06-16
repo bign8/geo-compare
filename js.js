@@ -35,13 +35,9 @@ var map;
 var markers = [];
 var info_wdw = new google.maps.InfoWindow();
 
-function clear_markers() {
+function view_points( points ) {
 	for (var i = 0, marker; marker = markers[i]; i++) marker.setMap(null);
 	markers = [];
-}
-
-function view_points( points ) {
-	clear_markers();
 
 	// For each place, get the icon, place name, and location.
 	var bounds = new google.maps.LatLngBounds();
@@ -163,7 +159,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 angular.module('compare', []).
 
 factory('storage', function () {
-	var storage_key = 'compare-map', default_val = '[{"name":"Nathan","list":[]},{"name":"Paige","list":[]}]';
+	var storage_key = 'compare-map', default_val = '[{"name":"Nathan","list":[],"open":true},{"name":"Paige","list":[],"open":true}]';
 	return {
 		get: function () {
 			var value = localStorage.getItem( storage_key );
