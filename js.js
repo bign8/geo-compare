@@ -102,7 +102,7 @@ var Map = function ( watch_obj, g_maps ) {
 		});
 		var default_bounds = new g_maps.LatLngBounds(
 			new g_maps.LatLng(49.38, 25.82),
-			new g_maps.LatLng(-124.38999999999999, -66.94)
+			new g_maps.LatLng(-124.39, -66.94)
 		);
 		var geocoder = new g_maps.Geocoder();
 		geocoder.geocode( { 'address': 'USA'}, function (results, status) {
