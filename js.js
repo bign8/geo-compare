@@ -95,7 +95,10 @@ var Map = function ( watch_obj, g_maps ) {
 
 		// Fix map for USA
 		map = new g_maps.Map(document.getElementById('map-canvas'), {
-			streetViewControl: false
+			maxZoom: 15,
+			mapTypeControl: false,
+			streetViewControl: false,
+			mapTypeId: g_maps.MapTypeId.ROADMAP,
 		});
 		var default_bounds = new g_maps.LatLngBounds(
 			new g_maps.LatLng(49.38, 25.82),
