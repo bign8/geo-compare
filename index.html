@@ -15,6 +15,7 @@
 					<h4>
 						<input type="checkbox" ng-model="list.show" ng-change="update()">
 						<span>{{list.name}}</span>
+						<small>{{list.list.length}}</small>
 					</h4>
 					<ul ng-show="list.open" ng-class="{disabled:!list.show}">
 						<li ng-repeat=" item in list.list | orderBy:'name' ">

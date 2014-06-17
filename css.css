@@ -109,6 +109,10 @@ html, body, #map-canvas {
 .lists h4 {
 	margin: 0 0 5px 0;
 }
+.lists h4 small {
+	color: gray;
+	font-weight: normal;
+}
 .lists > li {
 	margin-bottom: 5px;
 }
