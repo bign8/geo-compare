@@ -84,7 +84,7 @@ var Map = function ( watch_obj, g_maps ) {
 			// Add marker to map and extent bounds
 			markers.push(marker);
 			bounds.extend(new g_maps.LatLng(place.loc.lat, place.loc.lng));
-			if (points.length == 1) watch_obj.set( place );
+			watch_obj.set( points.length == 1 ? place : undefined );
 		}
 
 		if ( document.getElementById('zoom-to').checked ) map.fitBounds(bounds);
