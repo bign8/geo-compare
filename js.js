@@ -31,124 +31,125 @@ var map_object = function () {
  * docs: https://developers.google.com/maps/documentation/javascript/reference
  * ------------------------------------------------------------------- */
 
-var map;
-var markers = [];
-var info_wdw = new google.maps.InfoWindow();
+var Map = function ( watch_obj, g_maps ) {
+	var map;
+	var markers = [];
+	var info_wdw = new g_maps.InfoWindow();
+	var obj = {
+		size: new g_maps.Size(71, 71),
+		anchor: new g_maps.Point(12.5, 12.5),
+		scaledSize: new g_maps.Size(25, 25),
+		anchorPoint: new g_maps.Point(0, -15),
+	};
 
-function view_points( points ) {
-	for (var i = 0, marker; marker = markers[i]; i++) marker.setMap(null);
-	markers = [];
-
-	// For each place, get the icon, place name, and location.
-	var bounds = new google.maps.LatLngBounds();
-	for (var i = 0, place; place = points[i]; i++) {
-		var image = {
-			url: place.icon,
-			size: new google.maps.Size(71, 71),
-			anchor: new google.maps.Point(12.5, 12.5),
-			scaledSize: new google.maps.Size(25, 25)
+	var to_obj = function (name, url, latlng) {
+		return {
+			name: name,
+			icon: url,
+			loc: {
+				lat: latlng.lat(),
+				lng: latlng.lng(),
+			},
 		};
+	};
 
-		// Create a marker for each place.
-		var marker = new google.maps.Marker({
-			map: map,
-			icon: image,
-			title: place.name,
-			position: place.loc,
-			anchorPoint: new google.maps.Point(0, -15)
-		});
+	var show_pts = function ( points ) {
+		for (var i = 0, marker; marker = markers[i]; i++) marker.setMap(null);
+		markers = [];
 
-		// Add info-widnow for each place
-		google.maps.event.addListener(marker, 'click', function (item) {
-			info_wdw.setContent(this.title);
-			info_wdw.open(map, this);
-			map_object.set({
-				icon: this.icon.url,
-				name: this.title,
-				loc: {
-					lat: this.position.lat(),
-					lng: this.position.lng()
-				}//this.position.toString(),
-				// loc: this.position,
+		// For each place, get the icon, place name, and location.
+		var bounds = new g_maps.LatLngBounds();
+		for (var i = 0, place; place = points[i]; i++) {
+			var image = {
+				url: place.icon,
+				size: obj.size,
+				anchor: obj.anchor,
+				scaledSize: obj.scaledSize,
+			};
+
+			// Create a marker for each place.
+			var marker = new g_maps.Marker({
+				map: map,
+				icon: image,
+				title: place.name,
+				position: place.loc,
+				anchorPoint: obj.anchorPoint,
 			});
+
+			// Add info-widnow for each place
+			g_maps.event.addListener(marker, 'click', function (item) {
+				info_wdw.setContent(this.title);
+				info_wdw.open(map, this);
+				watch_obj.set(to_obj( this.title, this.icon.url, this.position ));
+			});
+
+			// Add marker to map and extent bounds
+			markers.push(marker);
+			bounds.extend(new g_maps.LatLng(place.loc.lat, place.loc.lng));
+			if (points.length == 1) watch_obj.set( place );
+		}
+
+		if ( document.getElementById('zoom-to').checked ) map.fitBounds(bounds);
+	};
+
+	var initialize = function () {
+
+		// Fix map for USA
+		map = new g_maps.Map(document.getElementById('map-canvas'));
+		var default_bounds = new g_maps.LatLngBounds(
+			new g_maps.LatLng(49.38, 25.82),
+			new g_maps.LatLng(-124.38999999999999, -66.94)
+		);
+		var geocoder = new g_maps.Geocoder();
+		geocoder.geocode( { 'address': 'USA'}, function (results, status) {
+			if (status == g_maps.GeocoderStatus.OK) {
+				default_bounds = results[0].geometry.viewport;
+				map.setCenter(results[0].geometry.location);
+				map.fitBounds(default_bounds);
+			}
 		});
 
-		// Add marker to map and extent bounds
-		markers.push(marker);
-		bounds.extend(new google.maps.LatLng(place.loc.lat, place.loc.lng));
-		if (points.length == 1) map_object.set({
-			icon: place.icon,
-			name: place.name,
-			loc: place.loc,
+		// Create the search box
+		var input = document.getElementById('pac-input');
+		map.controls[g_maps.ControlPosition.TOP_LEFT].push(input);
+		var searchBox = new g_maps.places.SearchBox( input );
+
+		// Listen for the event fired when the user selects an item from the pick list. Retrieve the matching places for that item.
+		g_maps.event.addListener(searchBox, 'places_changed', function() {
+			var places = searchBox.getPlaces(), cleaned = [];
+			for (var i = 0, place; place = places[i]; i++) 
+				cleaned.push(to_obj( place.name, place.icon, place.geometry.location ));
+			show_pts( cleaned );
 		});
-	}
 
-	if (document.getElementById('zoom-to').checked) map.fitBounds(bounds);
-}
+		// Bias the SearchBox results towards places that are within the bounds of the current map's viewport.
+		g_maps.event.addListener(map, 'bounds_changed', function() {
+			searchBox.setBounds( map.getBounds() );
+		});
 
-function initialize() {
-	// Preliminary map
-	map = new google.maps.Map(document.getElementById('map-canvas'));
-
-	// Fix map for USA
-	var default_bounds = new google.maps.LatLngBounds(
-		new google.maps.LatLng(49.38, 25.82),
-		new google.maps.LatLng(-124.38999999999999, -66.94)
-	);
-	var geocoder = new google.maps.Geocoder();
-	geocoder.geocode( { 'address': 'USA'}, function (results, status) {
-		if (status == google.maps.GeocoderStatus.OK) {
-			default_bounds = results[0].geometry.viewport;
-			map.setCenter(results[0].geometry.location);
+		// Create USA Button
+		var home = document.getElementById('home');
+		map.controls[g_maps.ControlPosition.TOP_RIGHT].push(home);
+		g_maps.event.addDomListener(home, 'click', function () {
 			map.fitBounds(default_bounds);
-		}
-	});
+		});
 
-	// Create the search box
-	var input = document.getElementById('pac-input');
-	map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-	var searchBox = new google.maps.places.SearchBox( input );
+		// Add zoom options to map
+		var options = document.getElementById('options');
+		map.controls[g_maps.ControlPosition.TOP_LEFT].push(options);
 
-	// Listen for the event fired when the user selects an item from the pick list. Retrieve the matching places for that item.
-	google.maps.event.addListener(searchBox, 'places_changed', function() {
-		var places = searchBox.getPlaces(), cleaned = [];
-		for (var i = 0, place; place = places[i]; i++) {
-			cleaned.push({
-				icon: place.icon,
-				name: place.name,
-				loc: {
-					lat: place.geometry.location.lat(),
-					lng: place.geometry.location.lng()
-				},
-			});
-		}
-		view_points( cleaned );
-	});
+		// close dialog on reset of map_object
+		watch_obj.watch(function (value) {
+			if (!value) info_wdw.close();
+		});
+	};
 
-	// Bias the SearchBox results towards places that are within the bounds of the current map's viewport.
-	google.maps.event.addListener(map, 'bounds_changed', function() {
-		searchBox.setBounds( map.getBounds() );
-	});
+	g_maps.event.addDomListener(window, 'load', initialize);
 
-	// Create USA Button
-	var home = document.getElementById('home');
-	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(home);
-	google.maps.event.addDomListener(home, 'click', function () {
-		map.fitBounds(default_bounds);
-	});
-
-	// Add zoom options to map
-	var options = document.getElementById('options');
-	map.controls[google.maps.ControlPosition.TOP_LEFT].push(options);
-
-	// close dialog on reset of map_object
-	map_object.watch(function (value) {
-		if (!value) info_wdw.close();
-	});
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
-
+	return {
+		show_pts: show_pts,
+	};
+}( map_object, google.maps );
 
 
 /* ------------------------------------------------------------------- *|
@@ -192,10 +193,10 @@ controller('compare', ['$scope', 'storage', function ($scope, storage) {
 		for (var i = 0; i < $scope.lists.length; i++) {
 			list = list.concat($scope.lists[i].list);
 		};
-		view_points( list );
+		Map.show_pts( list );
 	};
 	$scope.view_self = function (list) {
-		view_points( list.list );
+		Map.show_pts( list.list );
 	};
 
 	// Watch window object
