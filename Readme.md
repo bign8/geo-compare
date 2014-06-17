@@ -22,3 +22,9 @@ Lists can be expanded or contracted by clicking the up and down arrows next to a
 ### Developer(s)
 
 - [Nathan Woods](http://bign8.info/contact/)
+
+### Final Word
+
+Project is operating at http://bign8.github.io/geo-compare/
+
+Source Code is availabe in the [gh-pages](https://github.com/bign8/geo-compare/tree/gh-pages) branch of the project
