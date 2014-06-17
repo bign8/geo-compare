@@ -158,26 +158,19 @@ var Map = function ( watch_obj, g_maps ) {
 angular.module('app', ['ngRoute']).
 
 config(['$routeProvider', function ( $routeProvider ) {
-	$routeProvider.
-	when('/', {
+	$routeProvider.when('/', {
 		templateUrl: '/view.html',
 		controller: 'view',
-	}).
-	when('/edit', {
-		templateUrl: '',
-		controller: '',
-	}).
-	when('/edit/:name', {
-		templateUrl: '',
-		controller: '',
-	}).
-	otherwise({
+	}).when('/edit', {
+		templateUrl: '/edit.html',
+		controller: 'edit',
+	}).otherwise({
 		redirectTo: '/',
 	});
 }]).
 
 factory('storage', function () {
-	var storage_key = 'compare-map', default_val = '[{"name":"Nathan","list":[],"open":true},{"name":"Paige","list":[],"open":true}]';
+	var storage_key = 'compare-map', default_val = '[]';
 	return {
 		get: function () {
 			var value = localStorage.getItem( storage_key );
@@ -189,8 +182,9 @@ factory('storage', function () {
 	}
 }).
 
-controller('view', ['$scope', 'storage', function ($scope, storage) {
+controller('view', ['$scope', 'storage', '$location', function ($scope, storage, $location) {
 	$scope.lists = storage.get();
+	if (!$scope.lists.length) return $location.path('/edit') 
 
 	// Modify functions
 	$scope.add = function (list) {
@@ -222,4 +216,23 @@ controller('view', ['$scope', 'storage', function ($scope, storage) {
 		if (!$scope.$$phase) $scope.$digest();
 	});
 	$scope.$on('$destroy', destroy);
+}]).
+
+controller('edit', ['$scope', 'storage', function ($scope, storage) {
+	$scope.lists = storage.get();
+	var blank = { name: '', list: [], open: true };
+	$scope.new_cat = angular.copy( blank );
+
+	// Editing functions
+	$scope.rem = function (list) {
+		var idx = $scope.lists.indexOf(list);
+		$scope.lists.splice(idx, 1);
+		storage.set( $scope.lists );
+	};
+	$scope.add = function () {
+		if ( !$scope.new_cat.name ) return;
+		$scope.lists.push( $scope.new_cat );
+		$scope.new_cat = angular.copy( blank );
+		storage.set( $scope.lists );
+	};
 }]);

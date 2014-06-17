@@ -101,31 +101,43 @@ html, body, #map-canvas {
 	overflow: auto;
 }
 
-#lists {
+.lists {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
-#lists h4 {
+.lists h4 {
 	margin: 0 0 5px 0;
 }
-#lists ul {
+.lists > li {
+	margin-bottom: 5px;
+}
+.lists > li:last-child {
+	margin-bottom: 0;
+}
+.lists > li input[type="text"] {
+	margin: 0;
+	height: 20px;
+	box-sizing: border-box;
+	width: 84%;
+}
+.lists ul {
 	list-style: none;
 	margin: 0 0 10px 0;
 	padding: 0;
 }
-#lists ul li {
+.lists ul li {
 	clear: both;
 	margin-bottom: 5px;
 	height: 20px;
 }
-#lists ul li small {
+.lists ul li small {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
 	display: block;
 }
-#lists .btn {
+.lists .btn {
 	float: right;
 	padding: 0;
 	height: 20px;

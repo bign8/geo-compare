@@ -5,13 +5,9 @@
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 		<meta charset="utf-8">
 		<link rel="stylesheet" type="text/css" href="css.css">
-		<script src="//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.13/angular.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.13/angular-route.min.js"></script>
-		<script src="js.js"></script>
 
 		<script type="text/ng-template" id="/view.html">
-			<ul id="lists">
+			<ul class="lists">
 				<li ng-repeat=" list in lists | orderBy:'name' ">
 					<button class="view-btn btn" title="View Mapped Items" ng-click="view_self(list)">&bullet;</button>
 					<button class="btn" ng-show="list.open" ng-click="list.open=false" title="Close">&#9650;</button>
@@ -27,9 +23,26 @@
 				</li>
 				<li>
 					<button class="view-btn btn" title="View Mapped Items" ng-click="view()">&bullet;</button>
-					<h4 style="margin-bottom:0">Both</h4>
+					<h4 style="margin-bottom:0">All</h4>
 				</li>
 			</ul>
+			<a href="#/edit"><small>edit</small></a>
+		</script>
+
+		<script type="text/ng-template" id="/edit.html">
+			<ul class="lists">
+				<li ng-repeat=" list in lists | orderBy:'name' ">
+					<button ng-click="rem(list)" class="rem-btn btn" title="Remove category">&times;</button>
+					<input type="text" ng-model="list.name">
+				</li>
+				<li>
+					<form>
+						<button ng-click="add()" class="add-btn btn" title="Add category">&plus;</button>
+						<input type="text" ng-model="new_cat.name" placeholder="New Category">
+					</form>
+				</li>
+			</ul>
+			<a href="#/" ng-show="lists.length"><small>view</small></a>
 		</script>
 	</head>
 	<body>
@@ -45,5 +58,11 @@
 		<div id="map-canvas" class="full-map"></div>
 
 		<div id="panel" ng-view></div>
+
+		<!-- Scripts down here -->
+		<script src="//maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.13/angular.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.13/angular-route.min.js"></script>
+		<script src="js.js"></script>
 	</body>
 </html>
