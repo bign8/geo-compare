@@ -9,21 +9,20 @@
 		<script type="text/ng-template" id="/view.html">
 			<ul class="lists">
 				<li ng-repeat=" list in lists | orderBy:'name' ">
-					<button class="view-btn btn" title="View Mapped Items" ng-click="view_self(list)">&bullet;</button>
 					<button class="btn" ng-show="list.open" ng-click="list.open=false" title="Close">&#9650;</button>
 					<button class="btn" ng-hide="list.open" ng-click="list.open=true" title="Open">&#9660;</button>
 					<button ng-click="add(list)" class="add-btn btn" ng-show="map_obj" title="Add place to my list">&plus;</button>
-					<h4>{{list.name}}</h4>
-					<ul ng-show="list.open">
+					<h4>
+						<input type="checkbox" ng-model="list.show" ng-change="update()">
+						<span>{{list.name}}</span>
+					</h4>
+					<ul ng-show="list.open" ng-class="{disabled:!list.show}">
 						<li ng-repeat=" item in list.list | orderBy:'name' ">
 							<button ng-click="rem(list, item)" class="rem-btn btn" title="Remove place from my list">&times;</button>
+							<input type="checkbox" ng-model="item.show" ng-change="update()">
 							<small title="{{item.name}}">{{item.name}}</small>
 						</li>
 					</ul>
-				</li>
-				<li>
-					<button class="view-btn btn" title="View Mapped Items" ng-click="view()">&bullet;</button>
-					<h4 style="margin-bottom:0">All</h4>
 				</li>
 			</ul>
 			<div>

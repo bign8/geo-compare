@@ -32,6 +32,7 @@ var active_location = new watchable_object();
 var Map = function ( watch_obj, g_maps ) {
 	var map;
 	var markers = [];
+	var loaded_watchers = new watchable_object();
 	var info_wdw = new g_maps.InfoWindow();
 	var obj = {
 		size: new g_maps.Size(71, 71),
@@ -142,12 +143,15 @@ var Map = function ( watch_obj, g_maps ) {
 		watch_obj.watch(function (value) {
 			if (!value) info_wdw.close();
 		});
+
+		loaded_watchers.set(true);
 	};
 
 	g_maps.event.addDomListener(window, 'load', initialize);
 
 	return {
 		show_pts: show_pts,
+		watch: loaded_watchers.watch,
 	};
 }( active_location, google.maps );
 
@@ -190,39 +194,49 @@ controller('view', ['$scope', 'storage', '$location', function ($scope, storage,
 
 	// Modify functions
 	$scope.add = function (list) {
+		$scope.map_obj.show = true;
 		list.list.push($scope.map_obj);
 		active_location.set(undefined);
-		storage.set( $scope.lists );
+		$scope.update();
 	};
 	$scope.rem = function (list, item) {
 		var idx = list.list.indexOf(item);
 		list.list.splice(idx, 1);
+		$scope.update();
+	};
+	$scope.update = function () {
 		storage.set( $scope.lists );
+		$scope.view();
 	};
 
 	// View functions
 	$scope.view = function () {
 		var list = [];
-		for (var i = 0; i < $scope.lists.length; i++) {
-			list = list.concat($scope.lists[i].list);
-		};
+		for (var i = 0; i < $scope.lists.length; i++) 
+			if ( $scope.lists[i].show ) 
+				for (var j = 0; j < $scope.lists[i].list.length; j++) 
+					if ( $scope.lists[i].list[j].show ) 
+						list.push( $scope.lists[i].list[j] );
 		Map.show_pts( list );
 	};
-	$scope.view_self = function (list) {
-		Map.show_pts( list.list );
-	};
+
+	// Watch map and show data when possible
+	var destroy_load_handler = Map.watch(function () {
+		$scope.view();
+	});
+	$scope.$on('$destroy', destroy_load_handler);
 
 	// Watch window object
-	var destroy = active_location.watch(function (value) {
+	var destroy_active_handler = active_location.watch(function (value) {
 		$scope.map_obj = value;
 		if (!$scope.$$phase) $scope.$digest();
 	});
-	$scope.$on('$destroy', destroy);
+	$scope.$on('$destroy', destroy_active_handler);
 }]).
 
 controller('edit', ['$scope', 'storage', function ($scope, storage) {
 	$scope.lists = storage.get();
-	var blank = { name: '', list: [], open: true };
+	var blank = { name: '', list: [], open: true, show: true };
 	$scope.new_cat = angular.copy( blank );
 
 	// Editing functions
