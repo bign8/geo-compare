@@ -3,27 +3,25 @@
 // Watchable object to pass data between angular and vanilla JS
 // http://stackoverflow.com/a/15294997/3220865
 
-var map_object = function () {
-	var obj = undefined;
+var watchable_object = function () {
 	var watchers = {};
 
-	return {
-		watch: function (callback) {
-			var id;
-			do { id = Math.random().toString(); } while ( watchers.hasOwnProperty(id) );
-			watchers[id] = callback;
+	this.watch = function ( callback ) {
+		var id;
+		do { id = Math.random().toString(); } while ( watchers.hasOwnProperty(id) );
+		watchers[id] = callback;
 
-			return function() {
-				watches[id] = null;
-				delete watches[id];
-			};
-		},
-		set: function (value) {
-			var obj = value;
-			for (var k in watchers) watchers[ k ]( value );
-		}
+		return function () {
+			watchers[id] = null;
+			delete watchers[id];
+		};
 	};
-}();
+	this.set = function ( value ) {
+		for (var k in watchers) watchers[ k ]( value );
+	};
+};
+
+var active_location = new watchable_object();
 
 
 /* ------------------------------------------------------------------- *|
@@ -138,7 +136,7 @@ var Map = function ( watch_obj, g_maps ) {
 		var options = document.getElementById('options');
 		map.controls[g_maps.ControlPosition.TOP_LEFT].push(options);
 
-		// close dialog on reset of map_object
+		// close dialog on reset of active_location
 		watch_obj.watch(function (value) {
 			if (!value) info_wdw.close();
 		});
@@ -149,7 +147,7 @@ var Map = function ( watch_obj, g_maps ) {
 	return {
 		show_pts: show_pts,
 	};
-}( map_object, google.maps );
+}( active_location, google.maps );
 
 
 /* ------------------------------------------------------------------- *|
@@ -178,7 +176,7 @@ controller('compare', ['$scope', 'storage', function ($scope, storage) {
 	// Modify functions
 	$scope.add = function (list) {
 		list.list.push($scope.map_obj);
-		map_object.set(undefined);
+		active_location.set(undefined);
 		storage.set( $scope.lists );
 	};
 	$scope.rem = function (list, item) {
@@ -200,7 +198,7 @@ controller('compare', ['$scope', 'storage', function ($scope, storage) {
 	};
 
 	// Watch window object
-	var destroy = map_object.watch(function (value) {
+	var destroy = active_location.watch(function (value) {
 		$scope.map_obj = value;
 		if (!$scope.$$phase) $scope.$digest();
 	});
