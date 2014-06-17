@@ -155,7 +155,26 @@ var Map = function ( watch_obj, g_maps ) {
  * docs:  https://docs.angularjs.org/api/
  * ------------------------------------------------------------------- */
 
-angular.module('compare', []).
+angular.module('app', ['ngRoute']).
+
+config(['$routeProvider', function ( $routeProvider ) {
+	$routeProvider.
+	when('/', {
+		templateUrl: '/view.html',
+		controller: 'view',
+	}).
+	when('/edit', {
+		templateUrl: '',
+		controller: '',
+	}).
+	when('/edit/:name', {
+		templateUrl: '',
+		controller: '',
+	}).
+	otherwise({
+		redirectTo: '/',
+	});
+}]).
 
 factory('storage', function () {
 	var storage_key = 'compare-map', default_val = '[{"name":"Nathan","list":[],"open":true},{"name":"Paige","list":[],"open":true}]';
@@ -170,7 +189,7 @@ factory('storage', function () {
 	}
 }).
 
-controller('compare', ['$scope', 'storage', function ($scope, storage) {
+controller('view', ['$scope', 'storage', function ($scope, storage) {
 	$scope.lists = storage.get();
 
 	// Modify functions
