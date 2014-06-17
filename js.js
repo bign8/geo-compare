@@ -141,7 +141,10 @@ var Map = function ( watch_obj, g_maps ) {
 
 		// close dialog on reset of active_location
 		watch_obj.watch(function (value) {
-			if (!value) info_wdw.close();
+			if (!value) {
+				info_wdw.close();
+				input.value = '';
+			}
 		});
 
 		loaded_watchers.set(true);
